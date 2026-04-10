@@ -36,7 +36,7 @@ if __name__ == "__main__":
     sys.modules.setdefault("ats_mcp.server", sys.modules[__name__])
 
 # Import tool modules to trigger @mcp.tool() registration (side-effect imports).
-from ats_mcp.tools import code, pks, evaluators, tests  # noqa: E402, F401
+from ats_mcp.tools import code, pks, evaluators, tests, docs  # noqa: E402, F401
 
 
 def main() -> None:
