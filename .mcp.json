@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "ats-mcp": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/path/to/ats-mcp",
+        "python",
+        "-m",
+        "ats_mcp"
+      ]
+    }
+  }
+}

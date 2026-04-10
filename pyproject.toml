@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ats-mcp = "server:mcp.run"
+ats-mcp = "ats_mcp.server:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["src/ats_mcp"]
