@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from ats_mcp.config import ATS_ROOT
+from ats_mcp.config import ATS_ROOT, ATS_REGRESSION_TESTS_ROOT
 
 SOURCE_EXTENSIONS = {".cc", ".hh", ".cpp", ".h", ".py"}
 
@@ -22,6 +22,17 @@ def safe_resolve(relative_path: str) -> Path:
     target = (ATS_ROOT / relative_path).resolve()
     if not str(target).startswith(str(ATS_ROOT)):
         raise ValueError(f"Path '{relative_path}' escapes the repository root.")
+    return target
+
+
+def safe_resolve_regression(relative_path: str) -> Path:
+    """Resolve a path relative to ATS_REGRESSION_TESTS_ROOT.
+
+    Raises ValueError if the resolved path escapes the regression test root.
+    """
+    target = (ATS_REGRESSION_TESTS_ROOT / relative_path).resolve()
+    if not str(target).startswith(str(ATS_REGRESSION_TESTS_ROOT)):
+        raise ValueError(f"Path '{relative_path}' escapes the regression test root.")
     return target
 
 

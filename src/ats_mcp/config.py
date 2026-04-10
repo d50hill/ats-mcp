@@ -11,3 +11,12 @@ ATS_ROOT = Path(
         Path(__file__).parent.parent.parent.parent / "ats",
     )
 ).resolve()
+
+# Path to the ATS regression test suite, configurable via environment variable.
+# Falls back to a sibling `ats-regression-tests/` directory next to the project root.
+ATS_REGRESSION_TESTS_ROOT = Path(
+    os.environ.get(
+        "ATS_REGRESSION_TESTS_ROOT",
+        Path(__file__).parent.parent.parent.parent / "ats-regression-tests",
+    )
+).resolve()
