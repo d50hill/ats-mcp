@@ -20,3 +20,12 @@ ATS_REGRESSION_TESTS_ROOT = Path(
         Path(__file__).parent.parent.parent.parent / "ats-regression-tests",
     )
 ).resolve()
+
+# Path to the ATS demos repository, configurable via environment variable.
+# Falls back to a sibling `ats-demos/` directory next to the project root.
+ATS_DEMOS_ROOT = Path(
+    os.environ.get(
+        "ATS_DEMOS_ROOT",
+        Path(__file__).parent.parent.parent.parent / "ats-demos",
+    )
+).resolve()
