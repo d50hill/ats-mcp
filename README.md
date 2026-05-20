@@ -9,7 +9,9 @@ ATS is a large C++ scientific codebase for simulating coupled hydrological proce
 - "Where is `Richards_PK` implemented?"
 - "List all flow Process Kernels."
 - "What does the `eos_liquid_water` evaluator do and where is it registered?"
-- "Show me regression tests related to arctic permafrost."
+- "Find regression test inputs for overland flow."
+- "Show me a demo input for integrated hydrology."
+- "Where is `State` defined in Amanzi?"
 - "Is this XML input file well-formed?"
 - "Search the docs for `surface_water_content`."
 
@@ -22,16 +24,17 @@ ats-mcp/
     └── ats_mcp/
         ├── __init__.py
         ├── __main__.py     # Entry point: `python -m ats_mcp`
-        ├── config.py       # ATS_ROOT resolution (env var or sibling ats/ dir)
+        ├── config.py       # four repo roots (ATS_ROOT, AMANZI_ROOT, …), env var or sibling default
         ├── server.py       # FastMCP server instance; loads all tool modules
         ├── index/
-        │   └── file_utils.py   # safe_resolve, read_file, search_files
+        │   └── file_utils.py   # path-safe file I/O utilities
         └── tools/
-            ├── code.py         # search_source, read_ats_file
-            ├── pks.py          # list_pks
+            ├── code.py         # search_source, read_ats_file, search_amanzi_source, read_amanzi_file_tool
+            ├── demos.py        # search_demo_inputs, read_demo_file
+            ├── docs.py         # list_docs, read_doc, search_docs
             ├── evaluators.py   # describe_evaluator, list_constitutive_relations
-            ├── tests.py        # list_regression_tests, validate_xml_input
-            └── docs.py         # list_docs, read_doc, search_docs
+            ├── pks.py          # list_pks
+            └── tests.py        # list_regression_tests, validate_xml_input, search_regression_test_inputs, read_regression_test_input
 ```
 
 ## Available tools
@@ -40,24 +43,42 @@ ats-mcp/
 |------|-------------|
 | `search_source` | Case-insensitive regex search across ATS C++ source files (`.cc`, `.hh`, `.cpp`, `.h`) |
 | `read_ats_file` | Read any file in the ATS repo with optional start line and line count |
+| `search_amanzi_source` | Case-insensitive regex search across Amanzi C++ source files |
+| `read_amanzi_file_tool` | Read any file in the Amanzi repo with optional start line and line count |
 | `list_pks` | List Process Kernel categories and their header files; filter by category (e.g. `flow`, `energy`) |
 | `describe_evaluator` | Find an evaluator by its factory key (e.g. `eos_liquid_water`) and show its `RegisteredFactory` registration |
 | `list_constitutive_relations` | List constitutive relation modules; filter by subsystem (e.g. `eos`, `flow`) |
 | `list_regression_tests` | List regression test input files (XML, CFG, JSON); filter by substring |
 | `validate_xml_input` | Parse an ATS XML input file and report well-formedness errors and top-level structure |
+| `search_regression_test_inputs` | Search regression test XML inputs by name, category, or content (most up-to-date input syntax) |
+| `read_regression_test_input` | Read a regression test XML input file with optional line range |
+| `search_demo_inputs` | Search demo input files by name, category, or content (XML, YAML, notebooks, scripts) |
+| `read_demo_file` | Read a file from the ATS demos repository with optional line range |
 | `list_docs` | List documentation files (`.rst`, `.md`, `.in`) under `docs/` |
 | `read_doc` | Read a documentation file with optional line range |
 | `search_docs` | Case-insensitive keyword search across documentation files |
 
 ## Configuration
 
-The server needs to know where your ATS checkout lives. Set the `ATS_ROOT` environment variable:
+The server resolves four repository roots, each configurable via environment variable with a sibling-directory default:
+
+| Variable | Default (relative to `ats-mcp/`) | Purpose |
+|----------|-----------------------------------|---------|
+| `ATS_ROOT` | `../ats/` | ATS source tree |
+| `AMANZI_ROOT` | `../amanzi/` | Amanzi infrastructure source |
+| `ATS_REGRESSION_TESTS_ROOT` | `../ats-regression-tests/` | Regression test XML inputs |
+| `ATS_DEMOS_ROOT` | `../ats-demos/` | Demo inputs and notebooks |
+
+If your checkouts all live as siblings of `ats-mcp/` (the standard layout), no environment variables are needed. To override any root:
 
 ```bash
 export ATS_ROOT=/path/to/ats
+export AMANZI_ROOT=/path/to/amanzi
+export ATS_REGRESSION_TESTS_ROOT=/path/to/ats-regression-tests
+export ATS_DEMOS_ROOT=/path/to/ats-demos
 ```
 
-If `ATS_ROOT` is not set, the server defaults to a sibling `ats/` directory next to the `ats-mcp` project root (i.e. `../ats/` relative to this repo).
+Only the roots whose tools you use need to be set. For example, if you only use `search_source` and `read_ats_file`, only `ATS_ROOT` matters.
 
 ## Installation with Claude
 
