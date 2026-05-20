@@ -73,33 +73,47 @@ git clone https://github.com/your-org/ats-mcp.git
 cd ats-mcp
 ```
 
-### Step 2 — Add to Claude's MCP configuration
+### Step 2 — Register the server with Claude Code
 
-Edit `~/.claude/settings.json` (Claude Code) or the equivalent settings file for your Claude client, and add an entry under `mcpServers`:
+Use the `claude mcp add` CLI rather than hand-editing config files. Claude Code stores MCP servers in `~/.claude.json` (not `~/.claude/settings.json`), and the CLI picks the correct block automatically.
 
-```json
-{
-  "mcpServers": {
-    "ats": {
-      "command": "uv",
-      "args": ["run", "--directory", "/absolute/path/to/ats-mcp", "python", "-m", "ats_mcp"],
-      "env": {
-        "ATS_ROOT": "/absolute/path/to/ats"
-      }
-    }
-  }
-}
+Pick a scope:
+
+| Scope | Flag | Where it loads |
+|-------|------|----------------|
+| **user** | `-s user` | Every Claude Code session, regardless of working directory |
+| **project** | `-s project` | Only when CWD matches the project the command was run from; stored per-project in `~/.claude.json` |
+| **local** | `-s local` | Written to `.mcp.json` in the current repo; travels with the repo via git |
+
+For most users, **user scope** is the right choice — ATS tools should be available anywhere you work:
+
+```bash
+claude mcp add ats-mcp -s user \
+  -e ATS_ROOT=/absolute/path/to/ats \
+  -- uv run --directory /absolute/path/to/ats-mcp python -m ats_mcp
 ```
 
-Replace `/absolute/path/to/ats-mcp` with the directory where you cloned this repo, and `/absolute/path/to/ats` with your ATS checkout. The `env` block is optional if `ATS_ROOT` is already set in your shell environment.
+The `--` separates `claude mcp add`'s own flags from the command that launches the server. `-e KEY=VALUE` sets environment variables for the server process; omit it if `ATS_ROOT` is already exported in your shell (or if you rely on the sibling-`ats/` default).
+
+> **Gotcha:** If you previously added the server under project scope from a parent directory (e.g. `/Users/you` instead of `/Users/you/code`), it will silently fail to load from subdirectories. Run `claude mcp list` to see what's registered, and re-add with `-s user` if the scope is wrong.
 
 ### Step 3 — Verify
 
-Start (or restart) Claude Code. The `ats` MCP server should appear in the connected servers list. You can confirm it is working by asking Claude:
+```bash
+claude mcp list
+```
+
+You should see `ats-mcp: ... - ✓ Connected`. Restart any running Claude Code session so the stdio handshake runs with the new config, then ask Claude:
 
 ```
 List the ATS Process Kernel categories.
 ```
+
+### Troubleshooting
+
+- **Server missing from `claude mcp list`** — it's registered under a project scope that doesn't match your CWD. Re-add with `-s user`.
+- **`✗ Failed to connect`** — run the launch command manually (`uv run --directory /path/to/ats-mcp python -m ats_mcp`) to surface the real error. Common causes: `uv` not on PATH, wrong `--directory`, Python <3.11.
+- **Tools appear but return "ATS_ROOT not found"** — either pass `-e ATS_ROOT=...` at registration time, export it in the shell that launches Claude Code, or place an `ats/` checkout as a sibling of `ats-mcp/`.
 
 ## Running manually
 

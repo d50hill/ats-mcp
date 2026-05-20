@@ -12,6 +12,15 @@ ATS_ROOT = Path(
     )
 ).resolve()
 
+# Path to the Amanzi repository root, configurable via environment variable.
+# Falls back to a sibling `amanzi/` directory next to the project root.
+AMANZI_ROOT = Path(
+    os.environ.get(
+        "AMANZI_ROOT",
+        Path(__file__).parent.parent.parent.parent / "amanzi",
+    )
+).resolve()
+
 # Path to the ATS regression test suite, configurable via environment variable.
 # Falls back to a sibling `ats-regression-tests/` directory next to the project root.
 ATS_REGRESSION_TESTS_ROOT = Path(

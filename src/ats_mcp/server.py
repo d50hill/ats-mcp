@@ -19,15 +19,27 @@ import sys
 
 from mcp.server.fastmcp import FastMCP
 
-from ats_mcp.config import ATS_ROOT
+from ats_mcp.config import ATS_ROOT, AMANZI_ROOT
 
-mcp = FastMCP(
-    "ats-mcp",
-    instructions=(
-        "Tools for exploring the ATS (Advanced Terrestrial Simulator) C++ "
-        "source tree. ATS_ROOT is currently: " + str(ATS_ROOT)
-    ),
-)
+_INSTRUCTIONS = f"""\
+Tools for exploring ATS (Advanced Terrestrial Simulator) and its parent \
+framework Amanzi.
+  ATS_ROOT:    {ATS_ROOT}  — physics PKs, constitutive relations, executables
+  AMANZI_ROOT: {AMANZI_ROOT}  — infrastructure: state, mesh, operators, \
+solvers, utils (Units.hh), PK base classes
+
+ATS is built as a sub-repo of Amanzi. ATS source uses bare `#include "Foo.hh"` \
+that resolve to Amanzi headers via CMake.
+
+Routing rules:
+- `#include "X.hh"` seen in ATS → try search_amanzi_source first
+- State, Mesh, Evaluator, Operator, Solver, Units, PK base classes → Amanzi tools
+- Richards/overland flow, surface_balance, snow, MPC, transport PKs → ATS tools
+
+Full reference: ats-mcp/docs/ats-amanzi-linkage.md\
+"""
+
+mcp = FastMCP("ats-mcp", instructions=_INSTRUCTIONS)
 
 # When run as `python -m ats_mcp.server`, this module is loaded as __main__.
 # Register it under the canonical name so sub-module imports share the same
